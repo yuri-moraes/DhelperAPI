@@ -5,19 +5,6 @@ module.exports = {
     dialect: "postgres",
     url: process.env.DATABASE_PUBLIC_URL,
     define: {
-      timestamps: true, // Adiciona automaticamente os campos createdAt e updatedAt
-    },
-    dialectOptions: {
-      ssl: {
-        require: true, // Exigir SSL
-        rejectUnauthorized: false, // Não rejeitar certificados SSL autoassinados
-      },
-    },
-  },
-  production: {
-    dialect: "postgres",
-    url: process.env.DATABASE_PUBLIC_URL,
-    define: {
       timestamps: true,
     },
     dialectOptions: {
@@ -26,5 +13,12 @@ module.exports = {
         rejectUnauthorized: false,
       },
     },
+    dialectModule: require("pg"),
+  },
+  test: {
+    // Configurações para o ambiente de teste
+  },
+  production: {
+    // Configurações para o ambiente de produção
   },
 };

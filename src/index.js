@@ -11,8 +11,8 @@ app.use(cors());
 app.use(express.json());
 
 // Importando as rotas
-const userRoutes = require("./routes/userRoutes");
-const placeRoutes = require("./routes/placeRoutes");
+const userRoutes = require("../routes/userRoutes");
+const placeRoutes = require("../routes/placeRoutes");
 
 // Usando as rotas
 app.use("/users", userRoutes);
