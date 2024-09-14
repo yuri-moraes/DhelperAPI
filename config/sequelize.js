@@ -10,7 +10,7 @@ const sequelize = new Sequelize(process.env.DATABASE_PUBLIC_URL, {
       rejectUnauthorized: false,
     },
   },
-  dialectModule: require("pg"),
+  logging: false,
 });
 
 module.exports = sequelize;
