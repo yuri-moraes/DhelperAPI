@@ -1,10 +1,12 @@
 const cors = require("cors");
 const express = require("express");
+const fs = require("fs");
 const app = express();
 const { sequelize } = require("../models");
+const path = require("path");
 
 sequelize
-  .sync({ alter: true })
+  .sync()
   .then(() => {
     console.log("As tabelas foram sincronizadas com sucesso.");
   })
@@ -23,6 +25,11 @@ app.use(express.json());
 // Importando as rotas
 const userRoutes = require("../routes/userRoutes");
 const placeRoutes = require("../routes/placeRoutes");
+
+const uploadDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
 
 // Usando as rotas
 app.use("/users", userRoutes);
