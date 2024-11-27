@@ -26,15 +26,15 @@ app.use(express.json());
 const userRoutes = require("../routes/userRoutes");
 const placeRoutes = require("../routes/placeRoutes");
 
-const uploadDir = path.join(__dirname, "uploads");
+const uploadDir = "/tmp/uploads";
 if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
+  fs.mkdirSync(uploadDir, { recursive: true });
 }
 
 // Usando as rotas
 app.use("/users", userRoutes);
 app.use("/places", placeRoutes);
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static(uploadDir));
 
 // Inicializando o servidor
 const PORT = process.env.PORT || 3000;
