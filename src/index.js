@@ -17,6 +17,7 @@ const placeRoutes = require("../routes/placeRoutes");
 // Usando as rotas
 app.use("/users", userRoutes);
 app.use("/places", placeRoutes);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Inicializando o servidor
 const PORT = process.env.PORT || 3000;

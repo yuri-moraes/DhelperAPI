@@ -80,7 +80,11 @@ module.exports = {
         { expiresIn: "1d" }
       );
 
-      return res.json({ token });
+      // Retornar o token e a role do usuário
+      return res.json({
+        token,
+        role: user.role,
+      });
     } catch (error) {
       return res.status(500).json({
         error:
@@ -88,6 +92,7 @@ module.exports = {
       });
     }
   },
+
   // Obter o perfil do usuário logado
   async getProfile(req, res) {
     try {

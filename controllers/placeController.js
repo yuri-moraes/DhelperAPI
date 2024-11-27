@@ -1,7 +1,6 @@
-// controllers/placeController.js
-
 const { Place } = require("../models");
 const { Op } = require("sequelize");
+const upload = require("../middlewares/upload");
 
 module.exports = {
   // Obter todos os lugares
@@ -17,28 +16,34 @@ module.exports = {
     }
   },
 
-  // Criar um novo lugar
-  async createPlace(req, res) {
-    try {
-      const place = await Place.create(req.body);
-      return res.status(201).json(place);
-    } catch (error) {
-      if (error.name === "SequelizeValidationError") {
-        // Erros de validação
-        const messages = error.errors.map((err) => err.message);
-        return res.status(400).json({ error: messages });
-      } else if (error.name === "SequelizeUniqueConstraintError") {
-        // Violação de restrição única
-        return res.status(400).json({
-          error: "Os dados fornecidos violam restrições de unicidade.",
+  // Criar um novo lugar com upload de imagens
+  createPlace: [
+    upload.array("fotos", 5), // Permite até 5 imagens por vez
+    async (req, res) => {
+      try {
+        const { name, desc, endereco, telefone, nota, placeId, img } = req.body;
+        const fotos = req.files.map((file) => file.path); // Salva os caminhos das imagens enviadas
+
+        const place = await Place.create({
+          name,
+          desc,
+          endereco,
+          telefone,
+          nota,
+          placeId,
+          img,
+          fotos,
         });
-      } else {
+
+        return res.status(201).json(place);
+      } catch (error) {
+        console.error(error);
         return res.status(500).json({
           error: "Não foi possível criar o lugar. Tente novamente mais tarde.",
         });
       }
-    }
-  },
+    },
+  ],
 
   // Atualizar um lugar
   async updatePlace(req, res) {
