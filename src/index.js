@@ -1,7 +1,7 @@
 const cors = require("cors");
 const express = require("express");
 const app = express();
-const { sequelize } = require("./models");
+const { sequelize } = require("../models");
 
 sequelize
   .sync({ alter: true })
