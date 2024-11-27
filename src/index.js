@@ -1,6 +1,16 @@
 const cors = require("cors");
 const express = require("express");
 const app = express();
+const { sequelize } = require("./models");
+
+sequelize
+  .sync({ alter: true })
+  .then(() => {
+    console.log("As tabelas foram sincronizadas com sucesso.");
+  })
+  .catch((err) => {
+    console.error("Erro ao sincronizar tabelas:", err);
+  });
 
 require("dotenv").config();
 
