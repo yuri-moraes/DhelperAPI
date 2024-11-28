@@ -1,14 +1,21 @@
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
 
-// Configuração do armazenamento local
+// Configuração do diretório de uploads
+const uploadDir = path.join(__dirname, "../uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Configuração do Multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/"); // Pasta onde os arquivos serão salvos
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname)); // Nome único para o arquivo
+    const uniqueName = `${Date.now()}_${file.originalname}`;
+    cb(null, uniqueName);
   },
 });
 
@@ -28,7 +35,14 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 }, // Limite de 5MB
+  limits: { fileSize: 5 * 1024 * 1024 },
 });
 
-module.exports = upload;
+// Configuração para múltiplos campos
+const uploadMultiple = upload.fields([
+  { name: "img", maxCount: 1 },
+  { name: "fotos", maxCount: 5 },
+]);
+
+// Exportar corretamente
+module.exports = { upload, uploadMultiple };

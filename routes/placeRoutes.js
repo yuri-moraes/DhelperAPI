@@ -1,11 +1,10 @@
-// routes/placeRoutes.js
-
 const express = require("express");
 const router = express.Router();
 const placeController = require("../controllers/placeController");
 const { authenticateToken, isAdmin } = require("../middlewares/authMiddleware");
 const { body } = require("express-validator");
 const { validateFields } = require("../middlewares/validationMiddleware");
+const { uploadMultiple } = require("../middlewares/upload");
 
 // Validações para criação e atualização de Places
 const placeValidations = [
@@ -14,7 +13,6 @@ const placeValidations = [
   body("endereco").notEmpty().withMessage("O endereço é obrigatório"),
   body("telefone").notEmpty().withMessage("O telefone é obrigatório"),
   body("placeId").notEmpty().withMessage("O placeId é obrigatório"),
-  body("img").notEmpty().withMessage("A imagem é obrigatória"),
 ];
 
 // Rotas públicas
@@ -33,18 +31,22 @@ router.post(
   "/",
   authenticateToken,
   isAdmin,
+  uploadMultiple,
   placeValidations,
   validateFields,
   placeController.createPlace
 );
+
 router.put(
   "/:id",
   authenticateToken,
   isAdmin,
-  placeValidations,
-  validateFields,
+  uploadMultiple,
   placeController.updatePlace
 );
+
+console.log("Middleware uploadMultiple está definido:", uploadMultiple);
+
 router.delete("/:id", authenticateToken, isAdmin, placeController.deletePlace);
 
 module.exports = router;

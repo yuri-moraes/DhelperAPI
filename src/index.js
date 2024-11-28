@@ -3,7 +3,6 @@ const express = require("express");
 const fs = require("fs");
 const app = express();
 const { sequelize } = require("../models");
-const path = require("path");
 
 sequelize
   .sync()
