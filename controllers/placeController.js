@@ -2,6 +2,20 @@ const { Place } = require("../models");
 const { Op } = require("sequelize");
 const path = require("path");
 
+// Função para extrair o public_id da URL do Cloudinary
+function getPublicIdFromUrl(url) {
+  // Exemplo de URL:
+  // https://res.cloudinary.com/seu_cloud_name/image/upload/v123456789/uploads/abc123def456.png
+
+  // Vamos extrair a parte após '/upload/' e antes da extensão do arquivo
+  const regex = /\/upload\/(?:v\d+\/)?(.+)\.\w+$/;
+  const match = url.match(regex);
+  if (match && match[1]) {
+    return match[1];
+  }
+  return null;
+}
+
 module.exports = {
   // Obter todos os lugares
   async getAllPlaces(req, res) {
@@ -22,6 +36,9 @@ module.exports = {
   // Criar um novo lugar com upload de imagens
   async createPlace(req, res) {
     try {
+      console.log("Arquivos recebidos:", req.files);
+      console.log("Dados recebidos:", req.body);
+
       const { name, desc, endereco, telefone, nota, placeId } = req.body;
 
       if (!req.files || !req.files.img) {
@@ -53,12 +70,10 @@ module.exports = {
       return res.status(201).json(place);
     } catch (error) {
       console.error("Erro ao criar lugar:", error);
-      res
-        .status(500)
-        .json({ error: "Erro ao criar lugar. Tente novamente mais tarde." });
+      res.status(500).json({
+        error: "Erro ao criar lugar. Tente novamente mais tarde.",
+      });
     }
-    console.log("Arquivos recebidos:", req.files);
-    console.log("Dados recebidos:", req.body);
   },
 
   // Atualizar um lugar
@@ -73,37 +88,58 @@ module.exports = {
         return res.status(404).json({ error: "Lugar não encontrado." });
       }
 
-      // Se uma nova imagem for enviada, remove a imagem antiga
-      let updatedImg = place.img;
-      if (req.file) {
-        // Caminho da imagem antiga
-        const oldImagePath = path.join(
-          __dirname,
-          "../uploads",
-          path.basename(place.img)
-        );
+      // Importa o Cloudinary
+      const cloudinary = require("../config/cloudinaryConfig");
 
-        if (fs.existsSync(oldImagePath)) {
-          fs.unlinkSync(oldImagePath);
+      // Atualiza a imagem principal se uma nova imagem for enviada
+      let updatedImg = place.img;
+      if (req.files && req.files.img && req.files.img.length > 0) {
+        // Extrai o public_id da imagem antiga
+        const oldImageUrl = place.img;
+        const oldImagePublicId = getPublicIdFromUrl(oldImageUrl);
+
+        // Remove a imagem antiga do Cloudinary
+        if (oldImagePublicId) {
+          await cloudinary.uploader.destroy(oldImagePublicId);
         }
-        updatedImg = `/uploads/${req.file.filename}`;
+
+        // Obtém a URL da nova imagem
+        updatedImg = req.files.img[0].path;
       }
 
-      // Atualize os dados no banco de dados
+      // Atualiza as fotos adicionais se novas fotos forem enviadas
+      let updatedFotos = place.fotos;
+      if (req.files && req.files.fotos && req.files.fotos.length > 0) {
+        // Remove as fotos antigas do Cloudinary
+        if (place.fotos && place.fotos.length > 0) {
+          for (const fotoUrl of place.fotos) {
+            const fotoPublicId = getPublicIdFromUrl(fotoUrl);
+            if (fotoPublicId) {
+              await cloudinary.uploader.destroy(fotoPublicId);
+            }
+          }
+        }
+
+        // Obtém as URLs das novas fotos
+        updatedFotos = req.files.fotos.map((file) => file.path);
+      }
+
+      // Atualiza os campos do lugar
       await place.update({
         name: name || place.name,
         desc: desc || place.desc,
         endereco: endereco || place.endereco,
         telefone: telefone || place.telefone,
-        nota: nota || place.nota,
+        nota: nota !== undefined ? nota : place.nota,
         placeId: placeId || place.placeId,
         img: updatedImg,
+        fotos: updatedFotos,
       });
 
       return res.status(200).json(place);
     } catch (error) {
       console.error("Erro ao atualizar lugar:", error);
-      res.status(500).json({
+      return res.status(500).json({
         error: "Erro ao atualizar lugar. Tente novamente mais tarde.",
       });
     }
