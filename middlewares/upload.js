@@ -1,9 +1,8 @@
 const multer = require("multer");
-const path = require("path");
 const fs = require("fs");
+const { uploadDir } = require("../src/config");
 
-// Configuração do diretório de uploads
-const uploadDir = path.join(__dirname, "../uploads");
+// Verifique se a pasta existe
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }

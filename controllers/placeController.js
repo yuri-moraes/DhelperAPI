@@ -1,6 +1,6 @@
 const { Place } = require("../models");
 const { Op } = require("sequelize");
-const upload = require("../middlewares/upload");
+const path = require("path");
 
 module.exports = {
   // Obter todos os lugares
