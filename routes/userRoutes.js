@@ -9,6 +9,7 @@ router.post("/register", userController.createUser);
 
 // Rotas protegidas (disponíveis apenas para usuários autenticados)
 router.get("/profile", authenticateToken, userController.getProfile);
+router.put("/profile", authenticateToken, userController.updateProfile);
 router.get("/", authenticateToken, userController.getAllUsers);
 
 // Rotas protegidas com restrição de administrador

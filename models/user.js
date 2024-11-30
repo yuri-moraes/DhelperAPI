@@ -1,5 +1,3 @@
-// models/user.js
-
 "use strict";
 
 const { Model, DataTypes } = require("sequelize");
@@ -29,6 +27,10 @@ module.exports = (sequelize) => {
       role: {
         type: DataTypes.STRING,
         defaultValue: "Common",
+      },
+      description: {
+        type: DataTypes.TEXT,
+        allowNull: true,
       },
     },
     {

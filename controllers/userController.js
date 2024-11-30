@@ -8,7 +8,7 @@ module.exports = {
   async getAllUsers(req, res) {
     try {
       const users = await User.findAll({
-        attributes: { exclude: ["password"] }, // Exclui as senhas da resposta
+        attributes: { exclude: ["password"] },
       });
       return res.json(users);
     } catch (error) {
@@ -22,15 +22,16 @@ module.exports = {
   // Criar um novo usuário
   async createUser(req, res) {
     try {
-      const { name, email, password } = req.body;
+      const { name, email, password, description } = req.body;
 
       // Hashear a senha antes de salvar no banco
-      const hashedPassword = await bcrypt.hash(password, 10); // 10 é o número de rounds de hashing
+      const hashedPassword = await bcrypt.hash(password, 10);
 
       const user = await User.create({
         name,
         email,
         password: hashedPassword,
+        description,
         role: "Common",
       });
 
@@ -49,8 +50,8 @@ module.exports = {
       }
     }
   },
-  // Fazer login
 
+  // Fazer login
   async login(req, res) {
     try {
       const { email, password } = req.body;
@@ -113,6 +114,47 @@ module.exports = {
     }
   },
 
+  // Atualizar o perfil do usuário logado (Descrição e Senha)
+  async updateProfile(req, res) {
+    try {
+      const userId = req.user.id;
+      const { description, password } = req.body;
+
+      const user = await User.findByPk(userId);
+
+      if (!user) {
+        return res.status(404).json({
+          error: "Usuário não encontrado.",
+        });
+      }
+
+      // Atualiza a descrição se fornecida
+      if (description !== undefined) {
+        user.description = description;
+      }
+
+      // Atualiza a senha se fornecida
+      if (password) {
+        // Hashear a nova senha
+        const hashedPassword = await bcrypt.hash(password, 10);
+        user.password = hashedPassword;
+      }
+
+      await user.save();
+
+      // Exclui a senha da resposta
+      const { password: _, ...userData } = user.toJSON();
+
+      return res.json(userData);
+    } catch (error) {
+      console.error("Erro ao atualizar perfil:", error);
+      return res.status(500).json({
+        error:
+          "Ocorreu um erro ao atualizar seu perfil. Tente novamente mais tarde.",
+      });
+    }
+  },
+
   // Obter um usuário pelo ID
   async getUserById(req, res) {
     try {
@@ -136,7 +178,7 @@ module.exports = {
     }
   },
 
-  // Atualizar um usuário
+  // Atualizar um usuário (por um administrador)
   async updateUser(req, res) {
     try {
       const { id } = req.params;
