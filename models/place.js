@@ -35,8 +35,9 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       fotos: {
-        type: DataTypes.JSON,
-        allowNull: true,
+        type: DataTypes.ARRAY(DataTypes.STRING),
+        allowNull: false,
+        defaultValue: [],
       },
     },
     {
