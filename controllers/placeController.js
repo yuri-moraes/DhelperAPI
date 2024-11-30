@@ -31,11 +31,11 @@ module.exports = {
       }
 
       // Imagem principal
-      const imgPath = `/uploads/${req.files.img[0].filename}`;
+      const imgPath = req.files.img[0].path;
 
       // Imagens adicionais
       const fotosPaths = req.files.fotos
-        ? req.files.fotos.map((file) => `/uploads/${file.filename}`)
+        ? req.files.fotos.map((file) => file.path)
         : [];
 
       // Criação no banco de dados
@@ -50,8 +50,6 @@ module.exports = {
         fotos: fotosPaths,
       });
 
-      console.log("Arquivos recebidos no controlador:", req.files);
-
       return res.status(201).json(place);
     } catch (error) {
       console.error("Erro ao criar lugar:", error);
@@ -59,6 +57,8 @@ module.exports = {
         .status(500)
         .json({ error: "Erro ao criar lugar. Tente novamente mais tarde." });
     }
+    console.log("Arquivos recebidos:", req.files);
+    console.log("Dados recebidos:", req.body);
   },
 
   // Atualizar um lugar

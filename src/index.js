@@ -1,7 +1,5 @@
 const cors = require("cors");
 const express = require("express");
-const path = require("path");
-const { uploadDir } = require("./config");
 
 const app = express();
 
@@ -10,9 +8,6 @@ require("dotenv").config();
 // Middlewares
 app.use(cors());
 app.use(express.json());
-
-// Servindo arquivos estáticos da pasta de uploads
-app.use("/uploads", express.static(uploadDir));
 
 // Rotas
 const userRoutes = require("../routes/userRoutes");
