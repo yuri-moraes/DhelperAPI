@@ -1,6 +1,10 @@
 const cors = require("cors");
 const express = require("express");
 
+// Rotas
+const userRoutes = require("../routes/userRoutes");
+const placeRoutes = require("../routes/placeRoutes");
+
 const app = express();
 
 require("dotenv").config();
@@ -8,10 +12,6 @@ require("dotenv").config();
 // Middlewares
 app.use(cors());
 app.use(express.json());
-
-// Rotas
-const userRoutes = require("../routes/userRoutes");
-const placeRoutes = require("../routes/placeRoutes");
 
 app.use("/users", userRoutes);
 app.use("/places", placeRoutes);

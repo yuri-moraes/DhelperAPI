@@ -2,6 +2,8 @@ const { Place } = require("../models");
 const { Op } = require("sequelize");
 const path = require("path");
 
+const cloudinary = require("../src/cloudinaryConfig");
+
 // Função para extrair o public_id da URL do Cloudinary
 function getPublicIdFromUrl(url) {
   // Exemplo de URL:
@@ -88,9 +90,6 @@ module.exports = {
         return res.status(404).json({ error: "Lugar não encontrado." });
       }
 
-      // Importa o Cloudinary
-      const cloudinary = require("../config/cloudinaryConfig");
-
       // Atualiza a imagem principal se uma nova imagem for enviada
       let updatedImg = place.img;
       if (req.files && req.files.img && req.files.img.length > 0) {
@@ -135,6 +134,10 @@ module.exports = {
         img: updatedImg,
         fotos: updatedFotos,
       });
+
+      console.log("Dados recebidos no body:", req.body);
+      console.log("Arquivos recebidos:", req.files);
+
 
       return res.status(200).json(place);
     } catch (error) {
